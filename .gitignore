@@ -1,0 +1,32 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 构建产物
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# 跨端构建产物
+src-tauri/target/
+unpackage/
+.tauri/
+
+# 日志与缓存
+*.log
+logs/
+.cache/
+.temp/
+
+# 环境变量
+.env
+.env.local
+.env.*.local
+
+# 编辑器 / 系统
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
