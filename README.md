@@ -1,6 +1,6 @@
 # vue-fullstack
 
-一套面向 **Vue 3 全栈** 的通用 AI 编程规范包，同时支持 **Trae · Claude Code · OpenAI Codex · DeepSeek Harness · Cursor · GitHub Copilot · Gemini CLI** 等主流编码代理工具。把你固定的技术选型与工程约定固化下来，让 AI 在上述技术栈里直接按你的规范产出代码，而不是每次给出它自己的默认方案。
+一套面向 **Vue 3 全栈** 的通用 AI 编程规范包，同时支持 **Trae · Claude Code · OpenAI Codex · DeepSeek Harness · Cursor · GitHub Copilot · Gemini CLI** 等主流编码代理工具。固化技术选型与工程约定，让 AI 规范产出代码，而不是每次给出它自己的默认方案。
 
 ## 覆盖范围
 
