@@ -26,6 +26,7 @@
 | 对象存储 | **RustFS** | MinIO | S3 兼容，见 `references/storage.md` |
 | 桌面端 | **tauri** | electron | 默认 tauri，见 `references/desktop-mobile.md` |
 | 跨端小程序 | uni-app + WotUI | — | — |
+| 测试 | **vitest** + @vue/test-utils | — | 不用 jest，见 `references/testing.md` |
 | 工程 | pnpm monorepo + catalogs、oxlint、oxfmt、simple-git-hooks、lint-staged | — | 不用 eslint/prettier/husky |
 | 运维 | docker、nginx、Loki | — | 日志走 Loki，见 `references/devops.md` |
 | AI Agent | langchain、langgraph、deepAgent + Python FastAPI | — | 见 `references/agent.md` |
@@ -38,7 +39,7 @@
 4. **桌面端主推 tauri**：默认 tauri；只有明确要求 Node 主进程能力或既有 electron 项目才用 electron。
 5. **校验单一来源**：zod schema 定义一次，前端表单、后端入参、DB 类型推导（drizzle `$inferSelect`）都从它派生。
 6. **金额禁用 number**：涉及金额/精度用 decimal.js 或 PG `numeric`，禁止浮点直接运算。
-7. **工具链固定**：oxlint 取代 eslint，oxfmt 取代 prettier，simple-git-hooks + lint-staged 取代 husky。不要引入被替代的工具。
+7. **工具链固定**：oxlint 取代 eslint，oxfmt 取代 prettier，simple-git-hooks + lint-staged 取代 husky，vitest 取代 jest。不要引入被替代的工具，也不要两套并存。
 8. **依赖版本收敛在 catalogs**：monorepo 内所有包版本写进 `pnpm-workspace.yaml` 的 catalogs，子包用 `catalog:` 引用。
 9. **Monorepo 边界**：跨包只通过 `packages/*` 的公开导出引用，不深链 `src` 内部路径。
 10. **TS 严格**：`strict: true`，禁止 `any`（用 `unknown` + zod 收窄），禁止 `@ts-ignore`（必要时 `@ts-expect-error` 并注明原因）。
@@ -82,6 +83,7 @@
 | 官网/SEO、SSR/SSG、useSeoMeta、sitemap/robots、i18n hreflang、Nitro 部署 | `references/nuxt.md` |
 | 选 UI 库、tailwind/daisyUI 配置、element-plus 主题、WotUI 用法 | `references/ui.md` |
 | NestJS / Hono 接口、统一响应体与业务码、zod 校验、pino 日志、鉴权 | `references/backend.md` |
+| 单元/组件测试、vitest 配置、mock、覆盖率 | `references/testing.md` |
 | drizzle/mikro/mongoose、PG/Mongo/ES、迁移、索引 | `references/data.md` |
 | 文件上传下载、签名 URL、RustFS/MinIO | `references/storage.md` |
 | tauri/electron 桌面、uni-app 小程序、平台差异 | `references/desktop-mobile.md` |
