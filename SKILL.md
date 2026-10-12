@@ -1,6 +1,6 @@
 ---
 name: vue-fullstack
-description: Opinionated Vue 3 fullstack conventions for this user's stack. Use when building, configuring, reviewing or scaffolding Vue3, Nuxt, NestJS, Hono, Tauri, uni-app or pnpm monorepo work, including 创建项目、官网 SEO 与前后端和 ORM 开发. Do not use for unrelated stacks.
+description: Opinionated Vue 3 fullstack conventions for this user's stack. Use when building, configuring, reviewing or scaffolding Vue3, Nuxt, NestJS, Hono, Electron, uni-app or pnpm monorepo work, including 创建项目、官网 SEO 与前后端和 ORM 开发. Do not use for unrelated stacks.
 ---
 
 # Vue Fullstack
@@ -26,7 +26,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 | ORM | **drizzle-orm** | mikro-orm、mongoose | 主推 drizzle，见 [data.md](references/data.md) |
 | 数据库 | PostgreSQL | MongoDB、Elasticsearch | pg 为主库 |
 | 对象存储 | **RustFS** | MinIO | S3 兼容，见 [storage.md](references/storage.md) |
-| 桌面端 | **tauri** | electron | 默认 tauri，见 [desktop-mobile.md](references/desktop-mobile.md) |
+| 桌面端 | **electron** | tauri | 默认 electron，见 [desktop-mobile.md](references/desktop-mobile.md) |
 | 跨端小程序 | uni-app + WotUI | — | — |
 | 测试 | **vitest** + @vue/test-utils | — | 不用 jest，见 [testing.md](references/testing.md) |
 | 工程 | pnpm monorepo + catalogs、oxlint、oxfmt、simple-git-hooks、lint-staged | — | 不用 eslint/prettier/husky |
@@ -44,7 +44,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 | 单元/组件测试、vitest 配置、mock、覆盖率 | [references/testing.md](references/testing.md) |
 | drizzle/mikro/mongoose、PG/Mongo/ES、迁移、索引 | [references/data.md](references/data.md) |
 | 文件上传下载、签名 URL、RustFS/MinIO | [references/storage.md](references/storage.md) |
-| tauri/electron 桌面、uni-app 小程序、平台差异 | [references/desktop-mobile.md](references/desktop-mobile.md) |
+| electron/tauri 桌面、uni-app 小程序、平台差异 | [references/desktop-mobile.md](references/desktop-mobile.md) |
 | monorepo 结构、pnpm catalogs、lint/format、git hooks | [references/tooling.md](references/tooling.md) |
 | Dockerfile、nginx、compose、日志采集 | [references/devops.md](references/devops.md) |
 | LangGraph/DeepAgent 服务、FastAPI 接口 | [references/agent.md](references/agent.md) |
@@ -56,7 +56,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 1. **UI 分工不越界**：后台业务用 element-plus，C 端用 daisyUI，小程序用 WotUI。同一页面内不混用两套组件库。
 2. **ORM 主推 drizzle-orm**：新项目默认 drizzle + drizzle-kit。除非用户点名 mikro-orm 或 mongoose，否则不换。
 3. **对象存储主推 RustFS**：S3 兼容协议，代码用 `@aws-sdk/client-s3` 对接，endpoint 走环境变量，绝不在代码里写死 MinIO。
-4. **桌面端主推 tauri**：默认 tauri；只有明确要求 Node 主进程能力或既有 electron 项目才用 electron。
+4. **桌面端主推 electron**：默认 electron；只有明确要求极小体积、低内存或 Rust 侧安全沙箱时才用 tauri。
 5. **校验单一来源**：zod schema 定义一次，前端表单、后端入参、DB 类型推导（drizzle `$inferSelect`）都从它派生。
 6. **金额禁用 number**：涉及金额/精度用 decimal.js 或 PG `numeric`，禁止浮点直接运算。
 7. **工具链固定**：oxlint 取代 eslint，oxfmt 取代 prettier，simple-git-hooks + lint-staged 取代 husky，vitest 取代 jest。不要引入被替代的工具，也不要两套并存。
@@ -76,7 +76,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 │   ├── website/      # Nuxt 官网（官网/SEO，SSR/SSG）
 │   ├── api/          # NestJS 主服务
 │   ├── bff/          # Hono 轻量/边缘服务（可选）
-│   ├── desktop/      # tauri 桌面端（可选）
+│   ├── desktop/      # electron 桌面端（可选）
 │   ├── miniapp/      # uni-app + WotUI 小程序（可选）
 │   └── agent/        # Python FastAPI + LangGraph（可选）
 ├── packages/

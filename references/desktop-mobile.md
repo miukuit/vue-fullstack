@@ -1,30 +1,38 @@
 # 桌面端与小程序
 
-## 桌面端 — 主推 tauri
+## 桌面端 — 主推 electron
 
 | 场景 | 用 |
 |---|---|
-| **默认桌面应用** | **tauri v2** |
-| 既有 electron 项目 / 必须用 Node 主进程生态 | electron |
+| **默认桌面应用** | **electron** |
+| 体积/内存敏感、要求 Rust 侧安全边界 | tauri v2 |
 
-选 tauri 的理由：体积小、内存低、Rust 侧安全。除非明确需要 Node 主进程能力，不要建议 electron。
+选 electron 的理由：Node 主进程生态完整（native 能力可直接复用 npm 包）、进程模型与调试工具链成熟、团队上手成本低。除非明确要求极小体积或 Rust 侧安全沙箱，不要建议 tauri。
 
-### tauri 约定
+### electron 约定
 
-- 前端仍是 Vue3 + Vite（复用 `apps/admin` 或独立 `apps/desktop`），`src-tauri/` 放 Rust 侧。
-- 前端调后端能力一律走 `@tauri-apps/api` 的 `invoke`，命令名与 Rust `#[tauri::command]` 一一对应。
-- 权限：v2 用 capability 文件 `src-tauri/capabilities/*.json` 最小授权，不要图省事开 `core:default` 全开。
-- 网络请求优先在前端 axios 发（走 WebView），确需绕 CORS / 用系统代理时才在 Rust 侧发。
-- 本地存储：配置用 `tauri-plugin-store`，数据库用 `tauri-plugin-sql`（SQLite）或复用远端 API；不要在前端 localStorage 存敏感数据。
-- 自动更新用 `tauri-plugin-updater`，签名密钥走 CI secret。
-- 打包：`pnpm tauri build`，Windows 产出 msi/nsis，macOS dmg，Linux deb/AppImage。跨平台构建用 GitHub Actions matrix，不在本机交叉编译。
-- 开发命令：`pnpm tauri dev`。
+- 前端仍是 Vue3 + Vite（独立 `apps/desktop`），主进程 / 预加载 / 渲染进程三段严格隔离。
+- **安全基线（不可放宽）**：
+  - `contextIsolation: true`、`nodeIntegration: false`、`sandbox: true`
+  - 渲染进程只能通过 `contextBridge.exposeInMainWorld` 暴露**白名单** API，禁止整体暴露 `ipcRenderer`
+  - 禁用 `remote` 模块；不要为了省事关掉 `webSecurity`
+- IPC 命名固定前缀，channel 名**集中登记在一个常量文件**、两端引用同一份，禁止散落字符串：
+  - 渲染 → 主：`invoke('域:动作', payload)` ↔ `ipcMain.handle('域:动作', handler)`
+  - 主 → 渲染：`webContents.send('域:事件', data)` ↔ `ipcRenderer.on(...)`
+- **主进程不信任渲染进程**：IPC 入参一律用 zod 校验（复用 `packages/schemas`）。渲染进程是主要被攻击面。
+- 网络请求在前端 axios 发（渲染进程）；只有需绕 CORS、走系统代理或读写本地文件时才在主进程发。
+- 本地存储：配置用 `electron-store`，数据库用 SQLite（`better-sqlite3`）。token 存主进程并用 `safeStorage` 加密，不要放前端 localStorage。
+- 自动更新用 `electron-updater`，签名密钥走 CI secret。
+- **不在主进程做重 CPU 计算**（会卡死整个应用），用 `utilityProcess` 或 worker。
+- 崩溃与异常上报：`render-process-gone`、`child-process-gone`、`uncaughtException` 统一采集，日志走 Loki（见 [devops.md](devops.md)）。
+- 打包用 `electron-builder`，配置在 `electron-builder.yml`。Windows 产出 nsis/msi，macOS dmg（需签名+公证），Linux AppImage/deb。跨平台构建用 GitHub Actions matrix，不在本机交叉编译。
+- 构建工具推荐 `electron-vite`（自带主/预加载/渲染三份配置与 HMR）：`pnpm dev` / `pnpm build`。
 
-### electron（仅备选）
+### tauri（备选）
 
-- 主进程/预加载/渲染进程严格隔离，`contextIsolation: true`、`nodeIntegration: false`。
-- 渲染进程通过 `contextBridge.exposeInMainWorld` 暴露白名单 API。
-- 打包用 electron-builder，配置在 `electron-builder.yml`。
+- 体积/内存敏感或要求 Rust 侧安全沙箱时改用。前端调 Rust 走 `@tauri-apps/api` 的 `invoke`，命令名与 `#[tauri::command]` 一一对应。
+- v2 用 capability 文件 `src-tauri/capabilities/*.json` 最小授权，不要图省事开 `core:default` 全开。
+- 打包 `pnpm tauri build`，开发 `pnpm tauri dev`。
 
 ## 小程序 / 跨端 — uni-app + WotUI
 

@@ -8,10 +8,12 @@ build/
 out/
 *.tsbuildinfo
 
-# 跨端构建产物
+# 桌面端 / 跨端构建产物
+release/
+dist-electron/
 src-tauri/target/
-unpackage/
 .tauri/
+unpackage/
 
 # 日志与缓存
 *.log

@@ -38,7 +38,7 @@ CMD ["node", "apps/api/dist/main.js"]
 - 必须多阶段，最终镜像不含源码与 devDependencies。
 - 必须 `--frozen-lockfile`。
 - 以非 root 运行；不加 `--privileged`。
-- `.dockerignore` 排除 `node_modules`、`dist`、`.git`、`src-tauri/target`、`unpackage`。
+- `.dockerignore` 排除 `node_modules`、`dist`、`out`、`release`、`.git`、`src-tauri/target`、`unpackage`。
 
 ## compose
 

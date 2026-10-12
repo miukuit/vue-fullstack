@@ -78,7 +78,7 @@ pnpm --filter @repo/schemas build  # 先构建被依赖包
     "typescript/consistent-type-imports": "error",
     "import/no-cycle": "error"
   },
-  "ignorePatterns": ["dist", "node_modules", "drizzle", "src-tauri/target", "unpackage"]
+  "ignorePatterns": ["dist", "out", "release", "node_modules", "drizzle", "src-tauri/target", "unpackage"]
 }
 ```
 

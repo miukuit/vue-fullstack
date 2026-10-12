@@ -13,7 +13,7 @@
 | ORM | drizzle-orm（主推）· mikro-orm · mongoose |
 | 数据库 | PostgreSQL · MongoDB · Elasticsearch |
 | 对象存储 | RustFS（主推）· MinIO |
-| 跨端 | tauri（桌面主推）· electron · uni-app |
+| 跨端 | electron（桌面主推）· tauri · uni-app |
 | 测试 | vitest · @vue/test-utils · @vitest/coverage-v8 · happy-dom |
 | 工程 | pnpm monorepo + catalogs · oxlint · oxfmt · simple-git-hooks · lint-staged |
 | 运维 | docker · nginx · Loki |
@@ -44,7 +44,7 @@ vue-fullstack/
 │   ├── backend.md                # NestJS / Hono、zod 共享 schema、pino 日志
 │   ├── data.md                   # drizzle/mikro/mongoose、PG/Mongo/ES、迁移
 │   ├── storage.md                # RustFS/MinIO、预签名上传、bucket 安全
-│   ├── desktop-mobile.md         # tauri / electron、uni-app 小程序
+│   ├── desktop-mobile.md         # electron / tauri、uni-app 小程序
 │   ├── tooling.md                # monorepo、pnpm catalogs、oxlint/oxfmt、git hooks
 │   ├── testing.md                # Vitest 单测/组件测试、mock、覆盖率
 │   ├── devops.md                 # Dockerfile、compose、nginx、Loki
@@ -165,7 +165,7 @@ git pull
 
 规范会在以下类型的需求中被触发：
 
-- 创建 / 初始化 Vue3、NestJS、Hono、Tauri、uni-app、pnpm monorepo 项目
+- 创建 / 初始化 Vue3、NestJS、Hono、Electron、uni-app、pnpm monorepo 项目
 - 官网 / SEO 站（Nuxt、SSR/SSG、useSeoMeta、sitemap、robots、hreflang）
 - 前端页面与组件开发（element-plus 后台 / daisyUI C 端 / WotUI 小程序）
 - 后端接口、zod 校验、pino 日志、鉴权
