@@ -12,7 +12,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY . .
 RUN pnpm install --frozen-lockfile && pnpm --filter web build
 
-FROM nginx:1.27-alpine
+FROM nginx:alpine
 COPY deploy/nginx/web.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 ```
@@ -54,7 +54,7 @@ services:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/health']
       interval: 15s
   postgres:
-    image: postgres:16-alpine
+    image: postgres:alpine
     healthcheck: { test: ['CMD-SHELL', 'pg_isready -U app'], interval: 10s }
     volumes: ['pgdata:/var/lib/postgresql/data']
   rustfs:
@@ -62,7 +62,7 @@ services:
     command: ['server', '/data', '--address', '0.0.0.0:9000']
     volumes: ['rustfsdata:/data']
   loki:
-    image: grafana/loki:3.1
+    image: grafana/loki:3
     command: -config.file=/etc/loki/local-config.yaml
 volumes: { pgdata: {}, rustfsdata: {} }
 ```
@@ -70,6 +70,7 @@ volumes: { pgdata: {}, rustfsdata: {} }
 - 数据卷必须具名 volume，不用 bind mount 到宿主目录（生产）。
 - 服务间用 compose 网络的服务名互访：`DATABASE_URL=postgres://app:pwd@postgres:5432/app`、`S3_ENDPOINT=http://rustfs:9000`。
 - 生产密钥走 `.env`（不进仓库）或密钥管理，不用 `environment` 明文写密码。
+- 镜像 tag 只在影响写法/配置时才带大版本（如 `node:22`、`grafana/loki:3`），其余不带版本，交给部署侧。有状态服务**必须由部署侧锁定大版本**：PG 跨大版本不能复用 `pgdata` 数据目录，浮动 tag 会把库顶挂。
 
 ## nginx
 
