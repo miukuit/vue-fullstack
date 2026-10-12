@@ -84,6 +84,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 │   ├── schemas/      # zod schema（前后端共用）
 │   ├── api-client/   # 生成的类型化请求客户端
 │   ├── utils/        # 通用工具（dayjs/decimal 封装）
+│   ├── locales/      # 跨端共享的 i18n 语言包
 │   └── config/       # 共享 oxlint/ts/tailwind 配置
 ├── pnpm-workspace.yaml
 ├── .oxlintrc.json

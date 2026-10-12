@@ -138,6 +138,33 @@ http.interceptors.response.use(
 - 后端返回的**业务码** `code` 在前端映射文案，不直接展示后端 `message` 字符串（见上方请求一节的 `BizError`）。
 - 日期/金额格式化跟随 locale：dayjs locale 与 i18n locale 同步切换。
 
+装配（`locales/index.ts`）：
+
+```ts
+import { createI18n } from 'vue-i18n'
+
+export const SUPPORTED = ['zh-CN', 'en'] as const
+export type AppLocale = (typeof SUPPORTED)[number]
+
+const fallbackLocale: AppLocale = 'zh-CN'
+// 初值优先级：持久化 → 系统语言 → 回退
+const saved = localStorage.getItem('app:locale') as AppLocale | null
+const locale: AppLocale =
+  saved ?? SUPPORTED.find((l) => navigator.language.startsWith(l)) ?? fallbackLocale
+
+export const i18n = createI18n({
+  legacy: false,
+  locale,
+  fallbackLocale,
+  messages: { 'zh-CN': zhCN, en },
+})
+```
+
+- **locale 必须持久化**：key 用 `app:locale`（与 store 的 `app:` 前缀一致），否则刷新即回退；`fallbackLocale` 固定 `zh-CN`，缺失 key 时兜到回退语言而不是把 key 显示出来。
+- **切换语言只走一个 `setLocale()`**，在一次调用里同步四处：vue-i18n 的 `locale`、`dayjs.locale()`、`<html lang>`、组件库语言（后台 `ElConfigProvider` 的 `locale`、小程序 WotUI 的 `Locale.use()`）。不要各页面自己散着改。
+- **语言包跨端共享**：业务码文案、通用词这类**多端复用的文案放 `packages/locales`**（按模块拆的 TS 模块），各端 i18n 配置里 merge 进来。端专属文案（页面/组件私有）留在各自 app，不下沉。Nuxt 端 `i18n/locales/*.json` 只放官网专属文案，共享部分同样从 `packages/locales` 引入。
+- **小程序端**：uni-app（Vue3）直接用 vue-i18n，语言包复用 `packages/locales`；持久化不能用 `localStorage`，改用 `useStorage` 适配 `uni.setStorageSync`（见上方持久化约定）。WotUI 组件自带文案用 `Locale.use(lang, langPack)` 切换，必须和项目 locale 一起在 `setLocale()` 里切，否则会出现「页面是英文、组件还是中文」。
+
 ## 工具库约定
 
 | 场景 | 用什么 | 禁止 |
