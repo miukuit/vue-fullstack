@@ -89,7 +89,7 @@ pnpm --filter @repo/schemas build  # 先构建被依赖包
 ## oxfmt
 
 - 跑 `pnpm oxfmt`（格式化）/ `pnpm oxfmt --check`（CI 校验）。
-- 配置 `oxfmtrc.json`：`semi: false`、`singleQuote: true`、`printWidth: 100`、`trailingComma: 'all'`（跟随项目既有配置，首次创建时用这套）。
+- 配置 `.oxfmtrc.json`：`semi: false`、`singleQuote: true`、`printWidth: 100`、`trailingComma: 'all'`（跟随项目既有配置，首次创建时用这套）。
 - 格式化与 lint 分离：oxfmt 管风格，oxlint 管正确性，不要互相越界。
 
 ## git hooks
