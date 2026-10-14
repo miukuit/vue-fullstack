@@ -8,11 +8,11 @@
 |---|---|---|
 | `packages/schemas` | zod schema 的边界与类型推导 | vitest（纯函数） |
 | `packages/utils` | dayjs / decimal 封装 | vitest |
-| `apps/*`（前端） | composable、pinia store、关键组件 | vitest + @vue/test-utils + happy-dom |
+| `apps/*`（前端） | composable、pinia store | vitest |
 | `apps/api` / `apps/bff` | service、controller、业务码分支 | vitest |
 | `apps/website` | Nuxt 组合式函数、utils | vitest + @nuxt/test-utils |
 
-**不为覆盖率写测试。** 优先测纯逻辑、边界条件、以及曾经出过 bug 的地方；模板样式的展示细节不测。
+**不为覆盖率写测试。** 优先测纯逻辑、边界条件、以及曾经出过 bug 的地方；不测展示细节。
 
 ## 配置
 
@@ -20,43 +20,24 @@
 
 ```ts
 import { defineConfig } from 'vitest/config'
-import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
-  plugins: [vue()],
   test: {
-    environment: 'happy-dom',   // 组件测试用；纯逻辑文件自行覆盖为 node
     globals: true,              // 免去 import { describe, it, expect }
     setupFiles: ['./vitest.setup.ts'],
-    coverage: { provider: 'v8', reporter: ['text', 'lcov'] },
     exclude: ['**/node_modules/**', '**/dist/**', '**/.output/**'],
   },
 })
 ```
 
 - **文件命名与位置**：`*.test.ts`，与被测文件**同目录**（`useAuth.test.ts` 挨着 `useAuth.ts`），不建集中式 `__tests__` 目录。
-- **环境默认 `happy-dom`**，比 jsdom 快。纯逻辑文件在首行覆盖：`// @vitest-environment node`。
+- **环境默认 node**（vitest 默认值），测纯逻辑不需要 DOM 环境。
 - **不引 jest**：`jest.fn()` → `vi.fn()`，`jest.mock()` → `vi.mock()`，`jest.useFakeTimers()` → `vi.useFakeTimers()`。不要两套测试框架并存。
 
 ## 前端约定
 
-```ts
-import { mount } from '@vue/test-utils'
-import { describe, it, expect } from 'vitest'
-import OrderCard from './OrderCard.vue'
-
-describe('OrderCard', () => {
-  it('金额按 locale 格式化', () => {
-    const wrapper = mount(OrderCard, { props: { amount: '1234.5', locale: 'zh-CN' } })
-    expect(wrapper.get('[data-testid="amount"]').text()).toBe('¥1,234.50')
-  })
-})
-```
-
-- **元素定位优先 `[data-testid]`**。禁止用 class 名或 DOM 层级选择器——样式重构会把测试全打碎。
 - **pinia store**：`beforeEach(() => setActivePinia(createPinia()))`。**每个用例新建 pinia 实例**，复用会导致状态串味、用例相互污染。
 - **请求层**：mock `packages/api-client` 的导出，不要真发请求。需要拦截 HTTP 时用 MSW，不要在业务代码里加测试开关。
-- **图表 / 3D（echarts、three.js）不测渲染**。`vi.mock` 掉或 stub 成空组件，只断言传入的 options 与事件回调。
 - **金额断言比较字符串**（decimal.js 的 `toString()`），不要断言浮点数——浮点比较必然不稳定。
 - **i18n**：测试里固定 locale，不要依赖系统语言。
 
@@ -83,14 +64,13 @@ describe('OrderService', () => {
 `package.json` 里固定两个脚本：
 
 ```json
-{ "scripts": { "test": "vitest run", "test:watch": "vitest", "coverage": "vitest run --coverage" } }
+{ "scripts": { "test": "vitest run", "test:watch": "vitest" } }
 ```
 
 ```bash
 pnpm --filter <pkg> test            # 单包（一次性，CI 用）
 pnpm -r test                        # 全仓
 pnpm --filter <pkg> test:watch      # 本地 watch
-pnpm --filter <pkg> coverage        # 覆盖率
 ```
 
 ## 纪律

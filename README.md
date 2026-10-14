@@ -14,7 +14,7 @@
 | 数据库 | PostgreSQL · MongoDB · Elasticsearch |
 | 对象存储 | RustFS（主推）· MinIO |
 | 跨端 | electron（桌面主推）· tauri · uni-app |
-| 测试 | vitest · @vue/test-utils · @vitest/coverage-v8 · happy-dom |
+| 测试 | vitest |
 | 工程 | pnpm monorepo + catalogs · oxlint · oxfmt · simple-git-hooks · lint-staged |
 | 运维 | docker · nginx · Loki |
 | AI Agent | langchain · langgraph · deepAgent · Python · FastAPI |
@@ -46,7 +46,7 @@ vue-fullstack/
 │   ├── storage.md                # RustFS/MinIO、预签名上传、bucket 安全
 │   ├── desktop-mobile.md         # electron / tauri、uni-app 小程序
 │   ├── tooling.md                # monorepo、pnpm catalogs、oxlint/oxfmt、git hooks
-│   ├── testing.md                # Vitest 单测/组件测试、mock、覆盖率
+│   ├── testing.md                # Vitest 单测、mock
 │   ├── devops.md                 # Dockerfile、compose、nginx、Loki
 │   └── agent.md                  # LangGraph / DeepAgent + FastAPI
 ├── .gitignore
@@ -212,7 +212,7 @@ Remove-Item "$env:USERPROFILE\.trae-cn\skills\vue-fullstack" -Recurse -Force
 - 数据库与 ORM（drizzle-orm、迁移、索引、PG/Mongo/ES）
 - 文件上传下载、对象存储（RustFS / MinIO）
 - 工程配置（pnpm catalogs、oxlint、oxfmt、git hooks）
-- 测试（vitest 单测与组件测试、mock、覆盖率）
+- 测试（vitest 单测、mock）
 - 部署（Docker、nginx、Loki）
 - AI Agent 服务（LangGraph、DeepAgent、FastAPI）
 

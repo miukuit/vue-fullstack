@@ -26,7 +26,7 @@
 | 对象存储 | **RustFS** | MinIO | S3 兼容，见 `references/storage.md` |
 | 桌面端 | **electron** | tauri | 默认 electron，见 `references/desktop-mobile.md` |
 | 跨端小程序 | uni-app + WotUI | — | — |
-| 测试 | **vitest** + @vue/test-utils | — | 不用 jest，见 `references/testing.md` |
+| 测试 | **vitest** | — | 不用 jest，见 `references/testing.md` |
 | 工程 | pnpm monorepo + catalogs、oxlint、oxfmt、simple-git-hooks、lint-staged | — | 不用 eslint/prettier/husky |
 | 运维 | docker、nginx、Loki | — | 日志走 Loki，见 `references/devops.md` |
 | AI Agent | langchain、langgraph、deepAgent + Python FastAPI | — | 见 `references/agent.md` |
@@ -84,7 +84,7 @@
 | 官网/SEO、SSR/SSG、useSeoMeta、sitemap/robots、i18n hreflang、Nitro 部署 | `references/nuxt.md` |
 | 选 UI 库、tailwind/daisyUI 配置、element-plus 主题、WotUI 用法 | `references/ui.md` |
 | NestJS / Hono 接口、统一响应体与业务码、zod 校验、pino 日志、鉴权 | `references/backend.md` |
-| 单元/组件测试、vitest 配置、mock、覆盖率 | `references/testing.md` |
+| 单元测试、vitest 配置、mock | `references/testing.md` |
 | drizzle/mikro/mongoose、PG/Mongo/ES、迁移、索引 | `references/data.md` |
 | 文件上传下载、签名 URL、RustFS/MinIO | `references/storage.md` |
 | electron/tauri 桌面、uni-app 小程序、平台差异 | `references/desktop-mobile.md` |
