@@ -57,43 +57,72 @@ vue-fullstack/
 
 内容**只有文档，不含可执行脚本**，安装不会执行任何代码。
 
+其中 `SKILL.md`、`AGENTS.md`、`references/` 是技能运行需要的文件；`README.md`、`.gitignore`、`.gitattributes` 属仓库自用，安装技能时无需带入（见下节）。
+
 ## 安装
 
 下文用 `<本仓库地址>` 指代本仓库的 git 地址。
+
+安装只取技能运行需要的文件（`SKILL.md`、`AGENTS.md`、`references/`）；仓库自用的 `README.md`、`.gitignore`、`.gitattributes` 与 `.git/` 不会进入技能目录。做法是浅克隆到临时目录，再拷贝所需文件：
 
 ### 一、Trae（技能机制）
 
 目录名必须与 `SKILL.md` 的 `name` 一致，即 **`vue-fullstack`**。
 
+macOS / Linux：
+
 ```bash
+tmp="$(mktemp -d)"
+git clone --depth 1 <本仓库地址> "$tmp"
+
 # 全局（推荐）— Trae CN
-git clone <本仓库地址> ~/.trae-cn/skills/vue-fullstack
+dst=~/.trae-cn/skills/vue-fullstack
+# 全局 — Trae International：dst=~/.trae/skills/vue-fullstack
+# 项目级（只对当前项目生效）：dst=<你的项目>/.trae/skills/vue-fullstack
 
-# 全局 — Trae International
-git clone <本仓库地址> ~/.trae/skills/vue-fullstack
-
-# 项目级（只对当前项目生效）
-git clone <本仓库地址> <你的项目>/.trae/skills/vue-fullstack
+mkdir -p "$dst"
+cp "$tmp/SKILL.md" "$tmp/AGENTS.md" "$dst/"
+cp -R "$tmp/references" "$dst/"
+rm -rf "$tmp"
 ```
-
-> 注意：全局目录 CN 版是 `~/.trae-cn/`、国际版是 `~/.trae/`；**项目级目录两个版本都固定是 `<项目>/.trae/`**，不是 `.trae-cn`。
 
 Windows PowerShell：
 
 ```powershell
-git clone <本仓库地址> "$env:USERPROFILE\.trae-cn\skills\vue-fullstack"
+$tmp = "$env:TEMP\vue-fullstack-skill"
+git clone --depth 1 <本仓库地址> $tmp
+
+# 全局（推荐）— Trae CN
+$dst = "$env:USERPROFILE\.trae-cn\skills\vue-fullstack"
+# 全局 — Trae International：$dst = "$env:USERPROFILE\.trae\skills\vue-fullstack"
+# 项目级（只对当前项目生效）：$dst = "<你的项目>\.trae\skills\vue-fullstack"
+
+New-Item -ItemType Directory -Force -Path $dst | Out-Null
+Copy-Item "$tmp\SKILL.md","$tmp\AGENTS.md" $dst
+Copy-Item "$tmp\references" $dst -Recurse
+Remove-Item $tmp -Recurse -Force
 ```
+
+> 注意：全局目录 CN 版是 `~/.trae-cn/`、国际版是 `~/.trae/`；**项目级目录两个版本都固定是 `<项目>/.trae/`**，不是 `.trae-cn`。
+
+> 若想保留 `git pull` 增量更新，可改为直接 `git clone <本仓库地址> <技能目录>`（会一并带上 `.git/`、`README.md`、`.gitignore`、`.gitattributes`），或改用 `sparse-checkout`。
 
 ### 二、Claude Code（技能机制）
 
-Claude Code 的技能格式与 Trae 相同，同为 `SKILL.md` + `name`/`description`，直接克隆即可：
+Claude Code 的技能格式与 Trae 相同，同为 `SKILL.md` + `name`/`description`，安装方式同上——浅克隆到临时目录，只取所需文件：
 
 ```bash
-# 个人级（所有项目可用）
-git clone <本仓库地址> ~/.claude/skills/vue-fullstack
+tmp="$(mktemp -d)"
+git clone --depth 1 <本仓库地址> "$tmp"
 
-# 项目级（随项目提交，团队共享）
-git clone <本仓库地址> <你的项目>/.claude/skills/vue-fullstack
+# 个人级（所有项目可用）
+dst=~/.claude/skills/vue-fullstack
+# 项目级（随项目提交，团队共享）：dst=<你的项目>/.claude/skills/vue-fullstack
+
+mkdir -p "$dst"
+cp "$tmp/SKILL.md" "$tmp/AGENTS.md" "$dst/"
+cp -R "$tmp/references" "$dst/"
+rm -rf "$tmp"
 ```
 
 > 补充：Claude Code 也读项目根的 `AGENTS.md`，但**仅当项目里没有 `CLAUDE.md` 时**才回退到它。所以 Claude Code 优先用上面的 `.claude/skills/` 方式。
@@ -129,8 +158,8 @@ New-Item -ItemType SymbolicLink -Path AGENTS.md -Target tools\vue-fullstack-spec
 ### 四、不用 Git（下载压缩包）
 
 1. 在本仓库页面点击 **Code → Download ZIP**；
-2. 解压，把文件夹重命名为 `vue-fullstack`；
-3. 按上面任一方式，把目录/文件放到对应位置。
+2. 解压后只取 `SKILL.md`、`AGENTS.md` 与 `references/`（`README.md`、`.gitignore`、`.gitattributes` 是仓库自用文件，装技能不需要）；
+3. 把文件夹重命名为 `vue-fullstack`，再按上面任一方式放到对应位置。
 
 ### 五、让 Agent 自己装
 
@@ -140,7 +169,7 @@ New-Item -ItemType SymbolicLink -Path AGENTS.md -Target tools\vue-fullstack-spec
 
 **通用**（把下面这段话发给任意一个 agent，让它自己落地）：
 
-> 克隆 <本仓库地址>，把 SKILL.md 放到本工具的技能目录，并按本工具的约定把 AGENTS.md 接入到项目根或全局配置。
+> 从 <本仓库地址> 取 `SKILL.md`、`AGENTS.md` 与 `references/` 放到本工具的技能目录（目录名用 `vue-fullstack`；README.md、.gitignore、.gitattributes 不需要，不要整仓克隆），并按本工具的约定把 AGENTS.md 接入到项目根或全局配置。
 
 ## 验证是否安装成功
 
@@ -150,12 +179,23 @@ New-Item -ItemType SymbolicLink -Path AGENTS.md -Target tools\vue-fullstack-spec
 
 ## 更新
 
+技能安装目录不含 `.git`，更新方式是**重跑安装脚本**（会覆盖同名文件）：
+
+macOS / Linux：
+
 ```bash
-cd <安装位置>/vue-fullstack
-git pull
+rm -rf <技能目录>
+# 再执行「安装」一节中对应平台的脚本
 ```
 
-若用「子目录 + 软链」接法，`git pull` 后无需再做任何事，入口自动跟随更新。
+Windows PowerShell：
+
+```powershell
+Remove-Item "$env:USERPROFILE\.trae-cn\skills\vue-fullstack" -Recurse -Force
+# 再执行「一、Trae」中的 PowerShell 脚本
+```
+
+若用的是「三」里「子目录 + 软链」的接法，那是完整克隆（带 `.git`），`git pull` 后无需再做任何事，入口自动跟随更新。
 
 ## 卸载
 
