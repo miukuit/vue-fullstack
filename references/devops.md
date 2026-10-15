@@ -5,7 +5,7 @@
 前端（多阶段 + nginx）：
 
 ```dockerfile
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 RUN corepack enable
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
@@ -20,13 +20,13 @@ COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 后端（多阶段 + 非 root）：
 
 ```dockerfile
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 RUN corepack enable
 COPY . .
 RUN pnpm install --frozen-lockfile && pnpm --filter @repo/api build && pnpm prune --prod
 
-FROM node:22-alpine
+FROM node:24-alpine
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 COPY --from=build --chown=app:app /app .
@@ -54,11 +54,11 @@ services:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:3000/health']
       interval: 15s
   postgres:
-    image: postgres:alpine
+    image: postgres:<stable>-alpine     # 初始化时取最新稳定版并锁定，勿用浮动 tag
     healthcheck: { test: ['CMD-SHELL', 'pg_isready -U app'], interval: 10s }
     volumes: ['pgdata:/var/lib/postgresql/data']
   rustfs:
-    image: rustfs/rustfs:latest
+    image: rustfs/rustfs:<stable>       # 同上
     command: ['server', '/data', '--address', '0.0.0.0:9000']
     volumes: ['rustfsdata:/data']
   loki:
@@ -70,7 +70,10 @@ volumes: { pgdata: {}, rustfsdata: {} }
 - 数据卷必须具名 volume，不用 bind mount 到宿主目录（生产）。
 - 服务间用 compose 网络的服务名互访：`DATABASE_URL=postgres://app:pwd@postgres:5432/app`、`S3_ENDPOINT=http://rustfs:9000`。
 - 生产密钥走 `.env`（不进仓库）或密钥管理，不用 `environment` 明文写密码。
-- 镜像 tag 只在影响写法/配置时才带大版本（如 `node:22`、`grafana/loki:3`），其余不带版本，交给部署侧。有状态服务**必须由部署侧锁定大版本**：PG 跨大版本不能复用 `pgdata` 数据目录，浮动 tag 会把库顶挂。
+- **初始化取值**：中间件镜像（PostgreSQL、Redis、RustFS 等）**默认取各官方仓库的当前最新稳定版**，并把解析到的具体版本写进 compose **锁定**。
+- **有状态服务禁用浮动 tag**（`latest`、`postgres:alpine` 这类只带 `-alpine` 的写法同样浮动）。`docker compose pull` 会把大版本顶上去，而 PG 跨大版本不能复用 `pgdata` 数据目录，浮动 tag 会把库顶挂；其余有状态组件也有各自的升级前置条件。
+- **规范本身不写死版本号**（会腐坏，见 [tooling.md](tooling.md) 的版本约定）。样例里的 `<stable>` 是占位符，初始化时按官方仓库现行稳定版替换并落成具体 tag。
+- 无状态 / 构建类镜像只在影响写法与配置时才带大版本：`node:24`（决定可用语法与工具链，须与本地 `.nvmrc` 一致，见 [tooling.md](tooling.md)）、`grafana/loki:3`（3.x 与 2.x 的 config 语义不同）保留大版本，补丁与次版本交给部署侧浮动。
 
 ## nginx
 

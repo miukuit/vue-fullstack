@@ -43,7 +43,7 @@ catalogs:
 
 - 子包引用统一 `"vue": "catalog:"`、`"drizzle-orm": "catalog:backend"`，**不写死版本号**。
 - 升级依赖改 catalogs 一处，全局生效。
-- **文档里不出现具体版本号**；版本只存在于 `pnpm-workspace.yaml` 的 catalogs 与 `pnpm-lock.yaml`。例外：区分机制差异的大版本号要保留（`Vue 3`、`Tailwind v4/v3`、`tauri v2`），删了就无法判断该用哪套配置。
+- **文档里不出现具体版本号**；版本只存在于 `pnpm-workspace.yaml` 的 catalogs 与 `pnpm-lock.yaml`。例外：区分机制差异、支持下限与推荐值的版本号要保留（`Vue 3`、`Tailwind v4/v3`、`tauri v2`、`Node 24`、`TypeScript 下限 5.0 / 推荐 6.x`），删了就无法判断该用哪套配置。
 - 根 `package.json` 用 `pnpm -r` / `pnpm --filter <pkg>` 编排脚本。
 - `pnpm-workspace.yaml` 之外不出现第二个 workspace 定义（不用 lerna/nx/turbo 替代 pnpm workspace；如需任务编排再加 turbo，但 workspace 定义仍归 pnpm）。
 
@@ -57,8 +57,17 @@ pnpm -r build                      # 全量构建
 pnpm --filter @repo/schemas build  # 先构建被依赖包
 ```
 
+## Node 版本
+
+- 本地与镜像必须是**同一个 Active LTS**：`.nvmrc`（或 `.node-version`）与 Dockerfile 基底镜像保持一致（见 [devops.md](devops.md)），否则会出现「本机跑得通、容器里跑不通」。
+- 当前为 **24**（Node 22 已进入维护期）。Node 官方要求生产只用 Active / Maintenance LTS，**不要**用 Current（如 26）。
+- 升 / 降大版本同 TypeScript 一节的约定：**由用户确认**，不自行升降。
+
 ## TypeScript 项目引用
 
+- **版本下限**：Vue 3 官方工具链要求 **TypeScript ≥ 5.0**（`vue-tsc` / Vue - Official 的下限），低于该版本无法对 SFC 做类型检查。
+- **推荐版本：`6.x`**。TS 6.0 是最后一个基于 JS 代码库的版本（微软明确不再出 6.1，只有补丁），语义稳定；且 Vue SFC 工具链通过 `@typescript/typescript6` 内嵌 TS 6 的编译器 API——**TS 7.0 未暴露稳定的 programmatic API，Vue / Volar 工作流目前用不了**（官方称待 7.1）。故本仓暂不升 7。
+- catalogs 里的 `typescript` 以推荐值为准，**由用户确认后**确定并全仓共用，**不由 Agent 自行选版或升降大版本**。
 - 根 `tsconfig.base.json` 放公共编译选项（`strict`、`verbatimModuleSyntax`、`moduleResolution: bundler`）。
 - 子包 `extends` 根配置，只覆盖 `paths`/`outDir`。
 - 共享包用 `tsdown` 或 `vite build --lib` 产出 `dist` + `types`，`exports` 字段暴露入口。
