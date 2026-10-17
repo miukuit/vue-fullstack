@@ -72,6 +72,7 @@ useSeoMeta({
 
 官网统一用 `@nuxtjs/i18n`（底层就是 vue-i18n，与前端既有约定一致）：
 
+- **基线语言同为 `zh-CN` + `en`**（见铁律 13）：官网与 SPA 端保持一致，起步就上中英两种语言；不保留"先中文站、后补英文"的过渡态。
 - 每种语言**独立 URL**（如 `/en/` 前缀）。不要做纯客户端语言切换——搜索引擎索引不到 JS 切换出来的内容。
 - 用 `useLocaleHead()` 产出 `hreflang` 与 `og:locale`。
 - sitemap 需按语言生成 alternate 互链。

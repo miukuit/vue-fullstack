@@ -12,7 +12,7 @@
 | 前端框架 | Vue 3 + TypeScript + Vite | — | 一律 `<script setup lang="ts">` |
 | 官网 / SEO | **Nuxt**（SSR / SSG） | — | 仅用于官网、营销页、内容站，见 `references/nuxt.md` |
 | 路由 / 状态 | vue-router + pinia | — | pinia 用 setup 风格；持久化走 vueuse，不用 pinia-plugin-persistedstate |
-| 请求 / 国际化 | axios + vue-i18n | — | 统一封装，禁止散落裸 axios |
+| 请求 / 国际化 | axios + vue-i18n | — | 统一封装，禁止散落裸 axios；基线语言固定 `zh-CN` + `en` |
 | 工具库 | vueuse、lodash-es、dayjs、decimal.js | — | 金额一律 decimal.js |
 | 图表 / 动效 / 3D | echarts、animate.css、three.js、vue-bits | — | 见 `references/frontend.md` |
 | 后台业务 UI | **element-plus** | — | 管理端、B 端中后台 |
@@ -45,6 +45,7 @@
 10. **TS 严格**：`strict: true`，禁止 `any`（用 `unknown` + zod 收窄），禁止 `@ts-ignore`（必要时 `@ts-expect-error` 并注明原因）。
 11. **Nuxt 只做官网/SEO**：仅用于官网、营销页、内容站等需要 SSR/SSG 与搜索引擎收录的场景。admin、web 等既有 SPA 不因引入 Nuxt 而迁移或改写。
 12. **统一响应体**：所有接口返回 `{ code, data, message }`。`code` 是业务码，`0` 成功、其余任何值均失败；**判定成败只看 `code`，不看 HTTP 状态码**；失败时 `data` 固定为 `null`。业务码集中登记，不复用、不改含义。
+13. **中英双语基线**：国际化起步就以 `zh-CN` + `en` 为基线，两种语言同时交付、随时可切换，默认语言与 `fallbackLocale` 固定 `zh-CN`；不允许"先只做中文、事后补英文"。其他语言在此基线上按需追加，不删减基线语言。
 
 ## 目录骨架
 

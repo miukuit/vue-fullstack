@@ -34,7 +34,7 @@
 
 ```
 vue-fullstack/
-├── SKILL.md                      # 技能入口（Trae / Claude Code）：技术栈总览、任务路由表、12 条铁律
+├── SKILL.md                      # 技能入口（Trae / Claude Code）：技术栈总览、任务路由表、13 条铁律
 ├── AGENTS.md                     # 通用入口（Codex / DeepSeek Harness 等）：同一套规范的 AGENTS.md 版本
 ├── README.md                     # 本文件（安装教程）
 ├── references/                   # 按需加载的细分规范（agent 只读当前任务需要的那一份）

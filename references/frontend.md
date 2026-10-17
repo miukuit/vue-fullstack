@@ -132,8 +132,9 @@ http.interceptors.response.use(
 
 ## 国际化 vue-i18n
 
+- **基线语言固定 `zh-CN` + `en`**（见铁律 13）：国际化从起步就交付中英双语，`SUPPORTED` 以这两种语言起底、只增不减；默认语言与 `fallbackLocale` 都固定 `zh-CN`。不许"先只做中文、事后补英文"。
 - `legacy: false`，组合式 `useI18n()`。
-- 语言包按模块拆分：`locales/zh-CN/order.ts`，`index.ts` 聚合。
+- 语言包按模块拆分：`locales/zh-CN/order.ts`、`locales/en/order.ts`，`index.ts` 聚合；**基线语言目录必须成对存在**，缺哪个语言包就不算交付完成。
 - 文案 key 用 `模块.语义`，如 `order.status.paid`，禁止把中文当 key。
 - 后端返回的**业务码** `code` 在前端映射文案，不直接展示后端 `message` 字符串（见上方请求一节的 `BizError`）。
 - 日期/金额格式化跟随 locale：dayjs locale 与 i18n locale 同步切换。
