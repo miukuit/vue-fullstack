@@ -9,7 +9,7 @@
 | `packages/schemas` | zod schema 的边界与类型推导 | vitest（纯函数） |
 | `packages/utils` | dayjs / decimal 封装 | vitest |
 | `apps/*`（前端） | composable、pinia store | vitest |
-| `apps/api` / `apps/bff` | service、controller、业务码分支 | vitest |
+| `apps/serve` / `apps/bff` | service、controller、业务码分支 | vitest |
 | `apps/website` | Nuxt 组合式函数、utils | vitest + @nuxt/test-utils |
 
 **不为覆盖率写测试。** 优先测纯逻辑、边界条件、以及曾经出过 bug 的地方；不测展示细节。

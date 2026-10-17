@@ -56,7 +56,7 @@
 │   ├── admin/        # element-plus 中后台 (Vue3 + Vite)
 │   ├── web/          # daisyUI C 端 (Vue3 + Vite)
 │   ├── website/      # Nuxt 官网（官网/SEO，SSR/SSG）
-│   ├── api/          # NestJS 主服务
+│   ├── serve/        # NestJS 主服务
 │   ├── bff/          # Hono 轻量/边缘服务（可选）
 │   ├── desktop/      # electron 桌面端（可选）
 │   ├── miniapp/      # uni-app + WotUI 小程序（可选）

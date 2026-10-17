@@ -57,10 +57,10 @@ catalogs:
 
 ```bash
 pnpm install
-pnpm --filter admin dev            # 只跑 admin
-pnpm --filter @repo/api start:dev  # 只跑 api
-pnpm -r build                      # 全量构建
-pnpm --filter @repo/schemas build  # 先构建被依赖包
+pnpm --filter admin dev              # 只跑 admin
+pnpm --filter @repo/serve start:dev  # 只跑 serve
+pnpm -r build                        # 全量构建
+pnpm --filter @repo/schemas build    # 先构建被依赖包
 ```
 
 ## Node 版本

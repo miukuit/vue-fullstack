@@ -8,7 +8,7 @@
 | 轻量 BFF、边缘函数、Serverless、聚合多个上游 | **HonoJS** |
 | AI Agent 服务 | Python FastAPI（见 [agent.md](agent.md)） |
 
-同一个仓库可以并存：`apps/api`（NestJS）+ `apps/bff`（Hono）。不要用 NestJS 写一次性轻服务，也不要用 Hono 硬扛复杂业务。
+同一个仓库可以并存：`apps/serve`（NestJS）+ `apps/bff`（Hono）。不要用 NestJS 写一次性轻服务，也不要用 Hono 硬扛复杂业务。
 
 ## NestJS 约定
 
