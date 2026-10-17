@@ -12,6 +12,7 @@
 | 后端 | NestJS · HonoJS · zod · pino |
 | ORM | drizzle-orm（主推）· mikro-orm · mongoose |
 | 数据库 | PostgreSQL · MongoDB · Elasticsearch |
+| 缓存 / 队列 | Redis（主推）· Valkey · BullMQ |
 | 对象存储 | RustFS（主推）· MinIO |
 | 跨端 | electron（桌面主推）· tauri · uni-app |
 | 测试 | vitest |

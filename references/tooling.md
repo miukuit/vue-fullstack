@@ -11,39 +11,45 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
-# 单版本依赖：全仓库共用同一个版本
+# 单版本依赖：全仓库共用同一个版本；值一律 caret 范围 ^<resolved>
 catalog:
-  vue:
-  typescript:
-  zod:
-  dayjs:
-  decimal.js:
-  axios:
+  vue: ^<resolved>
+  typescript: ^<resolved>
+  zod: ^<resolved>
+  dayjs: ^<resolved>
+  decimal.js: ^<resolved>
+  axios: ^<resolved>
 
 # 分组版本：按用途分段；同名包在不同段可各用不同版本
 catalogs:
   frontend:
-    vue-router:
-    pinia:
-    element-plus:
-    '@wot-design-uni/components':
+    vue-router: ^<resolved>
+    pinia: ^<resolved>
+    element-plus: ^<resolved>
+    '@wot-design-uni/components': ^<resolved>
   backend:
-    '@nestjs/core':
-    hono:
-    drizzle-orm:
-    pino:
+    '@nestjs/core': ^<resolved>
+    hono: ^<resolved>
+    drizzle-orm: ^<resolved>
+    pino: ^<resolved>
   tooling:
-    oxlint:
-    oxfmt:
-    lint-staged:
-    simple-git-hooks:
+    oxlint: ^<resolved>
+    oxfmt: ^<resolved>
+    lint-staged: ^<resolved>
+    simple-git-hooks: ^<resolved>
 ```
 
-> 示例中的值为空，表示「版本以 `pnpm add` 实际解析结果为准」。**本规范刻意不锁定任何版本号**：文档里的版本号无法跟随上游更新，只会腐坏，而且极易被照抄成装不上的错误版本。需要锁定版本或复现构建，靠 `pnpm-lock.yaml`。
+> `^<resolved>` 是**占位符**：`^` 必须保留，`<resolved>` 换成实际解析出的版本。**本规范刻意不在文档里写任何真实版本号**：文档里的版本号无法跟随上游更新，只会腐坏，而且极易被照抄成装不上的错误版本。
+
+- **catalog 值一律写 caret 范围，不写精确版本**：`xxx: ^1.2.3` ✅、`xxx: 1.2.3` ❌（`1.2.3` 只是形式示例，不是可照抄的版本）。catalog 表达的是**允许浮动到的范围**，补丁与次版本随上游走；把它写成精确版本就等于把全仓库钉死在一个补丁上，`pnpm update` 再也升不动。精确锁定由 `pnpm-lock.yaml` 负责，两者不冲突。
+- **禁止凭记忆填版本号**：版本必须来自实际解析——`pnpm add <pkg>@latest`、`pnpm up` 或查 registry，拿到真实版本后补 `^` 写进 catalog。凭记忆写出的是对不上真实发布的版本（实测中 catalog 里出现过与 Vue 3 对不上的 `vue-router` / `pinia` 大版本号），一装就失败。
+- `0.x` 依赖按 semver 走：`^0.4.1` 只允许补丁浮动，这是预期行为，不要用 `>=` 放宽。
+- 例外：上游次版本会 breaking 又绕不开的包，才写精确值，并在 PR 里注明原因。
+- **`.npmrc` 固化 add 行为**：`save-prefix=^`、`save-exact=false`，避免不同代理 / 兼容模式下被写成精确值。
+- **升级命令**：`pnpm update` 在**范围之内**升到允许的最新；`pnpm update --latest` 会跨大版本，**大版本升降由用户确认**，不由 Agent 自行决定。升级只改 catalogs 这一处，全局生效。
 
 - 子包引用统一 `"vue": "catalog:"`、`"drizzle-orm": "catalog:backend"`，**不写死版本号**。
-- 升级依赖改 catalogs 一处，全局生效。
-- **文档里不出现具体版本号**；版本只存在于 `pnpm-workspace.yaml` 的 catalogs 与 `pnpm-lock.yaml`。例外：区分机制差异、支持下限与推荐值的版本号要保留（`Vue 3`、`Tailwind v4/v3`、`tauri v2`、`Node 24`、`TypeScript 下限 5.0 / 推荐 6.x`），删了就无法判断该用哪套配置。
+- **文档里不出现具体版本号**；版本只存在于 `pnpm-workspace.yaml` 的 catalogs 与 `pnpm-lock.yaml`。例外：区分机制差异、支持下限与推荐值的版本号要保留（`Vue 3`、`Tailwind v4/v3`、`tauri v2`、`Node 24`、`TypeScript` 下限 5.0 / 推荐 6.x），删了就无法判断该用哪套配置。
 - 根 `package.json` 用 `pnpm -r` / `pnpm --filter <pkg>` 编排脚本。
 - `pnpm-workspace.yaml` 之外不出现第二个 workspace 定义（不用 lerna/nx/turbo 替代 pnpm workspace；如需任务编排再加 turbo，但 workspace 定义仍归 pnpm）。
 

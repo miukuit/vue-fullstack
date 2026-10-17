@@ -25,6 +25,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 | 校验 / 日志 | zod + pino | — | zod 为唯一 schema 源 |
 | ORM | **drizzle-orm** | mikro-orm、mongoose | 主推 drizzle，见 [data.md](references/data.md) |
 | 数据库 | PostgreSQL | MongoDB、Elasticsearch | pg 为主库 |
+| 缓存 / 队列 | **Redis** | Valkey | 缓存、限流、分布式锁、BullMQ 队列；有状态，版本锁定见 [devops.md](references/devops.md) |
 | 对象存储 | **RustFS** | MinIO | S3 兼容，见 [storage.md](references/storage.md) |
 | 桌面端 | **electron** | tauri | 默认 electron，见 [desktop-mobile.md](references/desktop-mobile.md) |
 | 跨端小程序 | uni-app + WotUI | — | — |
@@ -60,7 +61,7 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 5. **校验单一来源**：zod schema 定义一次，前端表单、后端入参、DB 类型推导（drizzle `$inferSelect`）都从它派生。
 6. **金额禁用 number**：涉及金额/精度用 decimal.js 或 PG `numeric`，禁止浮点直接运算。
 7. **工具链固定**：oxlint 取代 eslint，oxfmt 取代 prettier，simple-git-hooks + lint-staged 取代 husky，vitest 取代 jest。不要引入被替代的工具，也不要两套并存。
-8. **依赖版本收敛在 catalogs**：monorepo 内所有包版本写进 `pnpm-workspace.yaml` 的 catalogs，子包用 `catalog:` 引用。
+8. **依赖版本收敛在 catalogs**：monorepo 内所有包版本写进 `pnpm-workspace.yaml` 的 catalogs，子包用 `catalog:` 引用；**catalog 值写 caret 范围（`^x.y.z`），不写精确版本**，精确锁定交给 `pnpm-lock.yaml`。
 9. **Monorepo 边界**：跨包只通过 `packages/*` 的公开导出引用，不深链 `src` 内部路径。
 10. **TS 严格**：`strict: true`，禁止 `any`（用 `unknown` + zod 收窄），禁止 `@ts-ignore`（必要时 `@ts-expect-error` 并注明原因）。
 11. **Nuxt 只做官网/SEO**：仅用于官网、营销页、内容站等需要 SSR/SSG 与搜索引擎收录的场景。admin、web 等既有 SPA 不因引入 Nuxt 而迁移或改写。
