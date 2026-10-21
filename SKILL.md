@@ -101,5 +101,6 @@ Apply this user's fixed stack and defaults instead of suggesting alternatives th
 - 新增依赖前先查 `pnpm-workspace.yaml` catalogs 里是否已有版本，有就复用同一版本。
 - 交付代码时同步给出运行命令（pnpm filter 形式，见 [tooling.md](references/tooling.md)），不要只说"已完成"。
 - 涉及跨端/跨包改动，说明改动落在哪个 app/package 以及如何验证。
+- **产出代码不写规范元信息**：注释只解释代码本身（非显然的逻辑与原因），禁止出现「铁律 N」「按规范 / 按 skill 要求」「见 SKILL.md / AGENTS.md / references/*.md」这类引用。规范是写代码时的约束，不是代码的一部分；注释里引用规范对维护者无信息量，且规范改版后会腐坏。需要交代出处时写在 PR 描述或 commit message 里，不进入源码。
 
 > 维护提示：根目录 `AGENTS.md` 是同一套规范的通用入口（供 Codex / DeepSeek Harness / Cursor / Copilot / Gemini CLI 等 AGENTS.md 系工具读取），修改技术选型或铁律时两处需同步。
