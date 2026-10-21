@@ -11,7 +11,6 @@
 
 - 主库是 PostgreSQL，MongoDB 用于非结构化/日志类数据，ES 用于搜索与分析。
 - **Redis 只作缓存 / 队列，不是数据源**：缓存、限流、分布式锁、BullMQ 队列都走它；源数据仍以 PG/Mongo 为准，缓存必须能重建（有状态镜像的版本锁定见 [devops.md](devops.md)）。
-- 默认 drizzle；用户点名 mikro-orm / mongoose 时才切换，并保持项目内一致。
 
 ## drizzle-orm
 

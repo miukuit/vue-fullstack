@@ -1,6 +1,6 @@
 # 测试 — Vitest
 
-**统一用 Vitest，不引 Jest。** 前端、后端、共享包共用同一套 runner，配置收敛在 `packages/config`。
+**统一用 Vitest。** 前端、后端、共享包共用同一套 runner，配置收敛在 `packages/config`。
 
 ## 分层定位
 
@@ -9,7 +9,7 @@
 | `packages/schemas` | zod schema 的边界与类型推导 | vitest（纯函数） |
 | `packages/utils` | dayjs / decimal 封装 | vitest |
 | `apps/*`（前端） | composable、pinia store | vitest |
-| `apps/serve` / `apps/bff` | service、controller、业务码分支 | vitest |
+| `apps/server` / `apps/bff` | service、controller、业务码分支 | vitest |
 | `apps/website` | Nuxt 组合式函数、utils | vitest + @nuxt/test-utils |
 
 **不为覆盖率写测试。** 优先测纯逻辑、边界条件、以及曾经出过 bug 的地方；不测展示细节。
@@ -32,12 +32,12 @@ export default defineConfig({
 
 - **文件命名与位置**：`*.test.ts`，与被测文件**同目录**（`useAuth.test.ts` 挨着 `useAuth.ts`），不建集中式 `__tests__` 目录。
 - **环境默认 node**（vitest 默认值），测纯逻辑不需要 DOM 环境。
-- **不引 jest**：`jest.fn()` → `vi.fn()`，`jest.mock()` → `vi.mock()`，`jest.useFakeTimers()` → `vi.useFakeTimers()`。不要两套测试框架并存。
+- **API 对照**：`jest.fn()` → `vi.fn()`，`jest.mock()` → `vi.mock()`，`jest.useFakeTimers()` → `vi.useFakeTimers()`。
 
 ## 前端约定
 
 - **pinia store**：`beforeEach(() => setActivePinia(createPinia()))`。**每个用例新建 pinia 实例**，复用会导致状态串味、用例相互污染。
-- **请求层**：mock `packages/api-client` 的导出，不要真发请求。需要拦截 HTTP 时用 MSW，不要在业务代码里加测试开关。
+- **请求层**：mock `packages/http` 的导出（实例与拦截器），不要真发请求。需要拦截 HTTP 时用 MSW，不要在业务代码里加测试开关。
 - **金额断言比较字符串**（decimal.js 的 `toString()`），不要断言浮点数——浮点比较必然不稳定。
 - **i18n**：测试里固定 locale，不要依赖系统语言。
 

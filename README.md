@@ -1,6 +1,6 @@
 # vue-fullstack
 
-一套面向 **Vue 3 全栈** 的通用 AI 编程规范包，同时支持 **Trae · Claude Code · OpenAI Codex · DeepSeek Harness · Cursor · GitHub Copilot · Gemini CLI** 等主流编码代理工具。固化技术选型与工程约定，让 AI 规范产出代码，而不是每次给出它自己的默认方案。
+一套面向 **Vue 3 全栈** 的通用 AI 编程规范包，以 Agent Skills（`SKILL.md`）为唯一入口，适用于 **Trae · Claude Code** 等支持该机制的工具。固化技术选型与工程约定，让 AI 规范产出代码，而不是每次给出它自己的默认方案。
 
 ## 覆盖范围
 
@@ -20,23 +20,15 @@
 | 运维 | docker · nginx · Loki |
 | AI Agent | langchain · langgraph · deepAgent · Python · FastAPI |
 
-## 多工具入口
+## 入口
 
-不同工具读取的入口文件不同，本仓库为两类机制各准备了一份入口，**内容核心一致，共用同一份 `references/`**：
-
-| 入口文件 | 机制 | 适用工具 |
-|---|---|---|
-| [SKILL.md](SKILL.md) | Agent Skills（`SKILL.md` + `name`/`description` frontmatter） | Trae、Claude Code，以及任何支持 Agent Skills 的工具 |
-| [AGENTS.md](AGENTS.md) | AGENTS.md 约定（纯 markdown，无 frontmatter） | OpenAI Codex、DeepSeek Harness、Cursor、GitHub Copilot、Gemini CLI、Google Jules、Zed、Windsurf、Aider、Amp、Devin 等 30+ 工具 |
-
-一份规范，两种形态：选错入口文件不要紧，按上表认领即可。
+唯一入口是 [SKILL.md](SKILL.md)（Agent Skills：`SKILL.md` + `name`/`description` frontmatter），适用于 Trae、Claude Code 以及任何支持 Agent Skills 的工具；细分规范按需从 `references/` 加载。
 
 ## 目录结构
 
 ```
 vue-fullstack/
-├── SKILL.md                      # 技能入口（Trae / Claude Code）：技术栈总览、任务路由表、13 条铁律
-├── AGENTS.md                     # 通用入口（Codex / DeepSeek Harness 等）：同一套规范的 AGENTS.md 版本
+├── SKILL.md                      # 技能入口：选型与细则索引、11 条铁律、目录骨架
 ├── README.md                     # 本文件（安装教程）
 ├── references/                   # 按需加载的细分规范（agent 只读当前任务需要的那一份）
 │   ├── frontend.md               # Vue3 写法、路由、状态、请求、i18n、图表、3D
@@ -54,17 +46,17 @@ vue-fullstack/
 └── .gitattributes                # 统一 LF 换行，跨平台协作不抖动
 ```
 
-**本仓库根目录就是规范目录本身**，`SKILL.md` / `AGENTS.md` 均位于仓库顶层。
+**本仓库根目录就是规范目录本身**，`SKILL.md` 位于仓库顶层。
 
 内容**只有文档，不含可执行脚本**，安装不会执行任何代码。
 
-其中 `SKILL.md`、`AGENTS.md`、`references/` 是技能运行需要的文件；`README.md`、`.gitignore`、`.gitattributes` 属仓库自用，安装技能时无需带入（见下节）。
+其中 `SKILL.md`、`references/` 是技能运行需要的文件；`README.md`、`.gitignore`、`.gitattributes` 属仓库自用，安装技能时无需带入（见下节）。
 
 ## 安装
 
 下文用 `<本仓库地址>` 指代本仓库的 git 地址。
 
-安装只取技能运行需要的文件（`SKILL.md`、`AGENTS.md`、`references/`）；仓库自用的 `README.md`、`.gitignore`、`.gitattributes` 与 `.git/` 不会进入技能目录。做法是浅克隆到临时目录，再拷贝所需文件：
+安装只取技能运行需要的文件（`SKILL.md`、`references/`）；仓库自用的 `README.md`、`.gitignore`、`.gitattributes` 与 `.git/` 不会进入技能目录。做法是浅克隆到临时目录，再拷贝所需文件：
 
 ### 一、Trae（技能机制）
 
@@ -82,7 +74,7 @@ dst=~/.trae-cn/skills/vue-fullstack
 # 项目级（只对当前项目生效）：dst=<你的项目>/.trae/skills/vue-fullstack
 
 mkdir -p "$dst"
-cp "$tmp/SKILL.md" "$tmp/AGENTS.md" "$dst/"
+cp "$tmp/SKILL.md" "$dst/"
 cp -R "$tmp/references" "$dst/"
 rm -rf "$tmp"
 ```
@@ -99,7 +91,7 @@ $dst = "$env:USERPROFILE\.trae-cn\skills\vue-fullstack"
 # 项目级（只对当前项目生效）：$dst = "<你的项目>\.trae\skills\vue-fullstack"
 
 New-Item -ItemType Directory -Force -Path $dst | Out-Null
-Copy-Item "$tmp\SKILL.md","$tmp\AGENTS.md" $dst
+Copy-Item "$tmp\SKILL.md" $dst
 Copy-Item "$tmp\references" $dst -Recurse
 Remove-Item $tmp -Recurse -Force
 ```
@@ -121,48 +113,18 @@ dst=~/.claude/skills/vue-fullstack
 # 项目级（随项目提交，团队共享）：dst=<你的项目>/.claude/skills/vue-fullstack
 
 mkdir -p "$dst"
-cp "$tmp/SKILL.md" "$tmp/AGENTS.md" "$dst/"
+cp "$tmp/SKILL.md" "$dst/"
 cp -R "$tmp/references" "$dst/"
 rm -rf "$tmp"
 ```
 
-> 补充：Claude Code 也读项目根的 `AGENTS.md`，但**仅当项目里没有 `CLAUDE.md` 时**才回退到它。所以 Claude Code 优先用上面的 `.claude/skills/` 方式。
-
-### 三、OpenAI Codex / DeepSeek Harness / 其他 AGENTS.md 工具
-
-这些工具读 **AGENTS.md**，有两种接法，任选其一。
-
-**接法 A：项目级（推荐）** — 把本仓库的 `AGENTS.md` 放到你的项目根：
-
-```bash
-# 方式 1：直接复制内容（不与项目已有 AGENTS.md 冲突时）
-curl -o AGENTS.md <本仓库 AGENTS.md 的 raw 地址>
-
-# 方式 2：子目录 + 软链，保持与上游同步（推荐，便于 git pull 更新）
-git clone <本仓库地址> tools/vue-fullstack-spec
-# Linux / macOS
-ln -s tools/vue-fullstack-spec/AGENTS.md AGENTS.md
-# Windows PowerShell（需管理员或开发者模式）
-New-Item -ItemType SymbolicLink -Path AGENTS.md -Target tools\vue-fullstack-spec\AGENTS.md
-```
-
-**接法 B：全局级** — 让规范对所有项目生效：
-
-| 工具 | 全局入口 |
-|---|---|
-| OpenAI Codex | `~/.codex/AGENTS.md`（若存在 `AGENTS.override.md`，它优先级更高） |
-| DeepSeek Harness | 项目根 `AGENTS.md`（跟随 AGENTS.md 约定） |
-| Cursor / Copilot / Gemini CLI / Jules / Zed / Windsurf / Aider / Amp / Devin | 均原生读取项目根 `AGENTS.md`，按接法 A 即可，无需各自单独的规则文件 |
-
-> 各工具对全局路径和优先级可能随版本调整，以你所装版本的官方说明为准。
-
-### 四、不用 Git（下载压缩包）
+### 三、不用 Git（下载压缩包）
 
 1. 在本仓库页面点击 **Code → Download ZIP**；
-2. 解压后只取 `SKILL.md`、`AGENTS.md` 与 `references/`（`README.md`、`.gitignore`、`.gitattributes` 是仓库自用文件，装技能不需要）；
+2. 解压后只取 `SKILL.md` 与 `references/`（`README.md`、`.gitignore`、`.gitattributes` 是仓库自用文件，装技能不需要）；
 3. 把文件夹重命名为 `vue-fullstack`，再按上面任一方式放到对应位置。
 
-### 五、让 Agent 自己装
+### 四、让 Agent 自己装
 
 **Trae**（走 skill-creator）：
 
@@ -170,12 +132,11 @@ New-Item -ItemType SymbolicLink -Path AGENTS.md -Target tools\vue-fullstack-spec
 
 **通用**（把下面这段话发给任意一个 agent，让它自己落地）：
 
-> 从 <本仓库地址> 取 `SKILL.md`、`AGENTS.md` 与 `references/` 放到本工具的技能目录（目录名用 `vue-fullstack`；README.md、.gitignore、.gitattributes 不需要，不要整仓克隆），并按本工具的约定把 AGENTS.md 接入到项目根或全局配置。
+> 从 <本仓库地址> 取 `SKILL.md` 与 `references/` 放到本工具的技能目录（目录名用 `vue-fullstack`；README.md、.gitignore、.gitattributes 不需要，不要整仓克隆）。
 
 ## 验证是否安装成功
 
 - **Trae / Claude Code**：新开会话，可用技能列表中应出现 `vue-fullstack`；确认 `<skills 根目录>/vue-fullstack/SKILL.md` 存在。
-- **Codex / DeepSeek Harness / 其他**：确认项目根（或全局）`AGENTS.md` 已被读取，可让它复述「后台业务用哪个 UI 库、ORM 主推哪个」来验证。
 - **实际触发**：提一个命中触发词的需求，例如「按我的规范新建一个 vue3 monorepo 项目」，观察 AI 是否按 element-plus / drizzle-orm / oxlint 等约定作答。
 
 ## 更新
@@ -196,11 +157,9 @@ Remove-Item "$env:USERPROFILE\.trae-cn\skills\vue-fullstack" -Recurse -Force
 # 再执行「一、Trae」中的 PowerShell 脚本
 ```
 
-若用的是「三」里「子目录 + 软链」的接法，那是完整克隆（带 `.git`），`git pull` 后无需再做任何事，入口自动跟随更新。
-
 ## 卸载
 
-删除 `vue-fullstack` 目录，以及接入的 `AGENTS.md` / 软链即可，不影响项目运行。
+删除 `vue-fullstack` 技能目录即可，不影响项目运行。
 
 ## 触发词参考
 
@@ -219,9 +178,9 @@ Remove-Item "$env:USERPROFILE\.trae-cn\skills\vue-fullstack" -Recurse -Force
 
 ## 自定义
 
-- **改技术选型**：技术栈总览与铁律在 [SKILL.md](SKILL.md) 和 [AGENTS.md](AGENTS.md) 里各存一份，**两处需同步修改**，再同步更新对应 `references/*.md`。
-- **加新领域**：在 `references/` 下新增文件，并在两个入口的「索引 / 路由表」中登记，保持引用为一级（`references/xxx.md`）。
-- **调整触发范围**：`SKILL.md` 的 `description` 是技能机制下唯一的触发依据，改这一行即可；AGENTS.md 系工具则是全量读取，不受 description 影响。
+- **改技术选型**：技术栈总览与铁律只在 [SKILL.md](SKILL.md) 里维护，修改后同步更新对应 `references/*.md`。
+- **加新领域**：在 `references/` 下新增文件，并在 `SKILL.md` 的「选型与细则」表中登记，保持引用为一级（`references/xxx.md`）。
+- **调整触发范围**：`SKILL.md` 的 `description` 是技能机制下唯一的触发依据，改这一行即可。
 
 ## 许可
 

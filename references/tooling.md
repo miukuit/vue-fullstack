@@ -1,6 +1,6 @@
 # 工程管理 — pnpm monorepo / oxlint / oxfmt / hooks
 
-工具链是**固定**的：oxlint 取代 eslint，oxfmt 取代 prettier，simple-git-hooks + lint-staged 取代 husky + lint-staged。不要引入被替代的工具，也不要同时保留两套。
+本文件只讲配置。
 
 ## pnpm monorepo
 
@@ -39,17 +39,15 @@ catalogs:
     simple-git-hooks: ^<resolved>
 ```
 
-> `^<resolved>` 是**占位符**：`^` 必须保留，`<resolved>` 换成实际解析出的版本。**本规范刻意不在文档里写任何真实版本号**：文档里的版本号无法跟随上游更新，只会腐坏，而且极易被照抄成装不上的错误版本。
+> `^<resolved>` 是**占位符**：`^` 保留，`<resolved>` 换成实际解析出的版本。文档里不写真实版本号（无法跟随上游更新，且易被照抄成装不上的版本）；只有区分机制差异、支持下限与推荐值时必须带的版本号保留：`Vue 3`、`Tailwind v4/v3`、`tauri v2`、`Node 24`、`TypeScript` 下限 5.0 / 推荐 6.x。
 
-- **catalog 值一律写 caret 范围，不写精确版本**：`xxx: ^1.2.3` ✅、`xxx: 1.2.3` ❌（`1.2.3` 只是形式示例，不是可照抄的版本）。catalog 表达的是**允许浮动到的范围**，补丁与次版本随上游走；把它写成精确版本就等于把全仓库钉死在一个补丁上，`pnpm update` 再也升不动。精确锁定由 `pnpm-lock.yaml` 负责，两者不冲突。
-- **禁止凭记忆填版本号**：版本必须来自实际解析——`pnpm add <pkg>@latest`、`pnpm up` 或查 registry，拿到真实版本后补 `^` 写进 catalog。凭记忆写出的是对不上真实发布的版本（实测中 catalog 里出现过与 Vue 3 对不上的 `vue-router` / `pinia` 大版本号），一装就失败。
-- `0.x` 依赖按 semver 走：`^0.4.1` 只允许补丁浮动，这是预期行为，不要用 `>=` 放宽。
-- 例外：上游次版本会 breaking 又绕不开的包，才写精确值，并在 PR 里注明原因。
-- **`.npmrc` 固化 add 行为**：`save-prefix=^`、`save-exact=false`，避免不同代理 / 兼容模式下被写成精确值。
-- **升级命令**：`pnpm update` 在**范围之内**升到允许的最新；`pnpm update --latest` 会跨大版本，**大版本升降由用户确认**，不由 Agent 自行决定。升级只改 catalogs 这一处，全局生效。
-
-- 子包引用统一 `"vue": "catalog:"`、`"drizzle-orm": "catalog:backend"`，**不写死版本号**。
-- **文档里不出现具体版本号**；版本只存在于 `pnpm-workspace.yaml` 的 catalogs 与 `pnpm-lock.yaml`。例外：区分机制差异、支持下限与推荐值的版本号要保留（`Vue 3`、`Tailwind v4/v3`、`tauri v2`、`Node 24`、`TypeScript` 下限 5.0 / 推荐 6.x），删了就无法判断该用哪套配置。
+- **catalog 值一律写 caret 范围**：`^1.2.3` ✅、`1.2.3` ❌。catalog 表达的是允许浮动的范围，写成精确值等于把全仓库钉死在一个补丁上，`pnpm update` 再也升不动；精确锁定交给 `pnpm-lock.yaml`。
+- **禁止凭记忆填版本号**：必须来自实际解析（`pnpm add <pkg>@latest`、`pnpm up` 或查 registry），拿到真实版本后补 `^`。凭记忆写出的版本对不上真实发布，一装就失败。
+- `0.x` 按 semver 走：`^0.4.1` 只允许补丁浮动，这是预期行为，不要用 `>=` 放宽。
+- 例外：上游次版本会 breaking 又绕不开的包，才写精确值，并在 PR 注明原因。
+- **`.npmrc` 固化 add 行为**：`save-prefix=^`、`save-exact=false`。
+- **升级**：`pnpm update` 只在范围内升到最新；`--latest` 会跨大版本，**大版本升降由用户确认**。升级只改 catalogs 一处，全局生效。
+- 子包引用统一 `"vue": "catalog:"`、`"drizzle-orm": "catalog:backend"`，不写死版本号；版本只存在于 catalogs 与 `pnpm-lock.yaml`。
 - 根 `package.json` 用 `pnpm -r` / `pnpm --filter <pkg>` 编排脚本。
 - `pnpm-workspace.yaml` 之外不出现第二个 workspace 定义（不用 lerna/nx/turbo 替代 pnpm workspace；如需任务编排再加 turbo，但 workspace 定义仍归 pnpm）。
 
@@ -58,7 +56,7 @@ catalogs:
 ```bash
 pnpm install
 pnpm --filter admin dev              # 只跑 admin
-pnpm --filter @repo/serve start:dev  # 只跑 serve
+pnpm --filter @repo/server start:dev  # 只跑 server
 pnpm -r build                        # 全量构建
 pnpm --filter @repo/schemas build    # 先构建被依赖包
 ```

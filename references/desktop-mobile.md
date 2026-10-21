@@ -50,7 +50,7 @@ console.log('h5 only')
 ```
 
 - 分包：主包只放 tabBar 页与首屏，其余进 `subPackages`；主包 <2MB，单包 <2MB，总包 <20MB。
-- 请求封装：`uni.request` 包成 promise，复用 `packages/api-client` 的类型；token 存 `uni.getStorageSync`，请求头统一注入。
+- 请求封装：`uni.request` 包成 promise，复用 `packages/http` 的拦截器与请求配置（类型来自 `packages/schemas`）；token 存 `uni.getStorageSync`，请求头统一注入。
 - 登录：微信 `code` → 后端换 `openid`/session → 下发业务 token；不把 `session_key` 传到前端逻辑层之外。
 - 支付：微信 `uni.requestPayment`，订单参数由后端签名，前端不参与签名。
 - 图片走 CDN（可用 S3 + 预签名，见 [storage.md](storage.md)），配 `lazy-load` 与 `mode="aspectFill"`。
@@ -60,6 +60,6 @@ console.log('h5 only')
 
 ## 多端复用原则
 
-- 可复用：`packages/schemas`（zod）、`packages/api-client`（请求与类型）、`packages/utils`（纯函数：dayjs/decimal 封装）、`packages/ui` 的 token。
+- 可复用：`packages/schemas`（zod）、`packages/http`（axios 实例与拦截器）、`packages/utils`（纯函数：dayjs/decimal 封装）、`packages/ui` 的 token。
 - 不复用：DOM 相关 composable、组件库组件、路由实现。
 - 判断标准：能否在无 DOM、无 `window` 环境跑。跑不了就不下沉到共享包。

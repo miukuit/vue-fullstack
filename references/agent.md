@@ -54,7 +54,7 @@ async def chat(body: ChatIn) -> ChatOut:
 
 - 入参/出参一律 pydantic 模型，与 zod 对齐字段命名（snake_case 在 Python 侧，前端转换）。
 - 长任务（>30s）不阻塞 HTTP：提交任务返回 `task_id`，用 SSE 或轮询取结果；流式用 `StreamingResponse` + SSE。
-- 统一异常处理 `@app.exception_handler`，返回 `{ code, message }` 与主 API 同构。
+- 统一异常处理 `@app.exception_handler`，返回 `{ code, data, message }` 与主 API 同构。
 - 日志用 `structlog` 或 stdlib logging 输出 JSON，字段与 pino 对齐（`requestId`、`userId`、`durationMs`），同样推 Loki。
 - 配置用 `pydantic-settings`：`OPENAI_API_KEY`、`OPENAI_BASE_URL`、`MODEL_NAME`、`CHECKPOINT_DB_URL`。
 - 依赖管理用 `uv`（`uv sync`、`uv run`），不用 requirements.txt 手写。

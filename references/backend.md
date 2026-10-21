@@ -8,7 +8,7 @@
 | 轻量 BFF、边缘函数、Serverless、聚合多个上游 | **HonoJS** |
 | AI Agent 服务 | Python FastAPI（见 [agent.md](agent.md)） |
 
-同一个仓库可以并存：`apps/serve`（NestJS）+ `apps/bff`（Hono）。不要用 NestJS 写一次性轻服务，也不要用 Hono 硬扛复杂业务。
+同一个仓库可以并存：`apps/server`（NestJS）+ `apps/bff`（Hono）。不要用 NestJS 写一次性轻服务，也不要用 Hono 硬扛复杂业务。
 
 ## NestJS 约定
 
@@ -41,7 +41,7 @@ app.useGlobalInterceptors(new TransformInterceptor())  // 统一响应体
 | `data` | 成功时为业务数据；失败时**固定 `null`** |
 | `message` | 面向开发者 / 兜底文案，前端正常路径**不直接展示** |
 
-zod 定义一次，前后端共用（铁律 5）：
+zod 定义一次，前后端共用：
 
 ```ts
 // packages/schemas/src/response.ts
@@ -99,7 +99,7 @@ export const failSchema = z.object({
 
 ### 金额与日期
 
-- **金额一律用 `string` 传输**（如 `"12.34"`），前端 decimal.js 解析，后端 PG `numeric` 承接。JSON number 是 IEEE754 双精度，大额与高精度必然失真（铁律 6）。
+- **金额一律用 `string` 传输**（如 `"12.34"`），前端 decimal.js 解析，后端 PG `numeric` 承接。JSON number 是 IEEE754 双精度，大额与高精度必然失真。
 - 日期时间一律 ISO8601（UTC）字符串，不传时间戳数字或本地化字符串。
 
 ### NestJS 落地
@@ -169,7 +169,7 @@ export default app
 ```
 
 - 校验用 `@hono/zod-validator`，与前端共用 `packages/schemas` 的 zod schema。
-- 错误统一用 `app.onError` 处理，返回与 NestJS 相同的响应体结构，方便前端复用。
+- 错误统一用 `app.onError` 处理，结构见上方「Hono 落地」。
 - 运行时：Node 用 `@hono/node-server`，边缘/Worker 直接 export default app；两边共用同一份路由代码。
 
 ## zod 共享 schema
@@ -207,5 +207,5 @@ export const logger = pino({
 
 ## 跨服务契约
 
-- 前端类型从后端 schema/OpenAPI 生成，放 `packages/api-client`，禁止手写重复的接口类型。
+- 前端类型从后端 schema/OpenAPI 生成：共享契约类型放 `packages/schemas`，各端特有的接口类型放业务侧 `src/api/types.ts`；禁止手写重复的接口类型。
 - 版本变更同步更新 schema 包，PR 里说明是否为破坏性变更。

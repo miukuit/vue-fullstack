@@ -55,8 +55,7 @@ export const useUserStore = defineStore('user', () => {
 })
 ```
 
-- 持久化统一用 VueUse（`useLocalStorage` / `useSessionStorage`），只持久 token / 主题 / 语言等少量字段，不整库持久化。
-- 不在 store 里直接调裸 axios，走 `api-client`。
+- 不在 store 里直接调裸 axios，走 `packages/http`；持久化见下方「持久化约定」。
 
 ```ts
 import { useLocalStorage, useSessionStorage } from '@vueuse/core'
@@ -75,6 +74,31 @@ export const useAuthStore = defineStore('auth', () => {
 
 VueUse 返回的 storage ref 本身就是响应式 state，直接 `return` 出去即可，读写自动落盘，不需要再写 `$subscribe` 或 `watch` 做同步。
 
+
+```ts
+import type { App } from 'vue'
+import { createPinia } from 'pinia'
+import { useAuthStore } from './modules/auth'
+
+const store = createPinia()
+
+// 全局注册 store
+export function setupStore(app: App<Element>) {
+  app.use(store)
+}
+export { store }
+
+export * from './modules/user'
+export * from './modules/auth'
+
+/**
+ * 在组件外部使用的钩子函数
+ * @see https://pinia.vuejs.org/core-concepts/outside-component-usage.html
+ */
+export const useAuthStoreHook = () => useAuthStore(store())
+
+```
+
 持久化约定：
 
 - **只持久确实需要的字段**（token、主题、语言、用户偏好）。业务数据、列表缓存、接口响应一律不持久化。
@@ -85,7 +109,7 @@ VueUse 返回的 storage ref 本身就是响应式 state，直接 `return` 出�
 
 ## 请求 axios
 
-统一实例 + 拦截器，放在 `packages/api-client` 或 `src/api/request.ts`。**统一响应体 `{ code, data, message }` 的解包与成败判定只在这一层做**（结构定义见 backend.md 的「统一响应体」）。
+统一实例 + 拦截器，放在 `packages/http` 或 `src/api/request.ts`。**统一响应体 `{ code, data, message }` 的解包与成败判定只在这一层做**（结构定义见 backend.md 的「统一响应体」）。这一层只做通用处理：网络/超时/非 2xx 归一、按 `code !== 0` 抛错；业务码对应的提示、跳转等处置由调用方决定。
 
 ```ts
 import axios, { type AxiosError } from 'axios'
@@ -123,16 +147,15 @@ http.interceptors.response.use(
 )
 ```
 
-- **业务码判定只发生在这一层**。页面里禁止再写 `if (res.code === 0)`——调用方拿到的是已解包的 `data`。
-- **HTTP 200 也可能是失败**。判定成败只看 `code`，不要用 `res.status === 200` 判断业务结果。
+- **业务码判定只发生在这一层**：页面里不再写 `if (res.code === 0)`，调用方拿到的是已解包的 `data`；HTTP 200 也可能是失败。
 - **401 / token 过期在此处统一处理**（清 token + 跳登录），不要在业务页面各写一遍。
 - 错误提示**按端注入**：后台用 `ElMessage`，C 端用自己的 toast，**不写死在请求层**。
 - `BizError.code` 交给 i18n 映射文案（见下方国际化一节），拦截器里不拼中文。
-- 分页/列表接口的数据结构统一为 `{ list, total, page, pageSize }`（已含在 `data` 内）。
+- 分页结构见 [backend.md](backend.md) 的「分页」。
 
 ## 国际化 vue-i18n
 
-- **基线语言固定 `zh-CN` + `en`**（见铁律 13）：国际化从起步就交付中英双语，`SUPPORTED` 以这两种语言起底、只增不减；默认语言与 `fallbackLocale` 都固定 `zh-CN`。不许"先只做中文、事后补英文"。
+- **基线语言 `zh-CN` + `en`**：`SUPPORTED` 以这两种语言起底、只增不减，默认语言与 `fallbackLocale` 固定 `zh-CN`。
 - `legacy: false`，组合式 `useI18n()`。
 - 语言包按模块拆分：`locales/zh-CN/order.ts`、`locales/en/order.ts`，`index.ts` 聚合；**基线语言目录必须成对存在**，缺哪个语言包就不算交付完成。
 - 文案 key 用 `模块.语义`，如 `order.status.paid`，禁止把中文当 key。
@@ -161,10 +184,10 @@ export const i18n = createI18n({
 })
 ```
 
-- **locale 必须持久化**：key 用 `app:locale`（与 store 的 `app:` 前缀一致），否则刷新即回退；`fallbackLocale` 固定 `zh-CN`，缺失 key 时兜到回退语言而不是把 key 显示出来。
+- **locale 必须持久化**：key 用 `app:locale`（与 store 的 `app:` 前缀一致），否则刷新即回退；缺失 key 时兜到 `fallbackLocale`，而不是把 key 显示出来。
 - **切换语言只走一个 `setLocale()`**，在一次调用里同步四处：vue-i18n 的 `locale`、`dayjs.locale()`、`<html lang>`、组件库语言（后台 `ElConfigProvider` 的 `locale`、小程序 WotUI 的 `Locale.use()`）。不要各页面自己散着改。
 - **语言包跨端共享**：业务码文案、通用词这类**多端复用的文案放 `packages/locales`**（按模块拆的 TS 模块），各端 i18n 配置里 merge 进来。端专属文案（页面/组件私有）留在各自 app，不下沉。Nuxt 端 `i18n/locales/*.json` 只放官网专属文案，共享部分同样从 `packages/locales` 引入。
-- **小程序端**：uni-app（Vue3）直接用 vue-i18n，语言包复用 `packages/locales`；持久化不能用 `localStorage`，改用 `useStorage` 适配 `uni.setStorageSync`（见上方持久化约定）。WotUI 组件自带文案用 `Locale.use(lang, langPack)` 切换，必须和项目 locale 一起在 `setLocale()` 里切，否则会出现「页面是英文、组件还是中文」。
+- **小程序端**：uni-app（Vue3）直接用 vue-i18n，语言包复用 `packages/locales`（存储适配见上方持久化约定）；WotUI 组件自带文案用 `Locale.use(lang, langPack)` 切换，必须和项目 locale 一起在 `setLocale()` 里切，否则会出现「页面是英文、组件还是中文」。
 
 ## 工具库约定
 

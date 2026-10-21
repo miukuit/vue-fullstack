@@ -1,8 +1,6 @@
 # Nuxt（官网 / SEO）
 
-**定位：只用于官网、营销页、内容站等需要搜索引擎收录与 SSR/SSG 的场景。**
-
-admin（element-plus 后台）与 web（daisyUI C 端）保持 Vue3 + Vite SPA，**不因 Nuxt 的引入而迁移或改写**。Nuxt 应用独立放在 `apps/website`，独立构建、独立部署。
+只用于官网、营销页、内容站等需要搜索引擎收录与 SSR/SSG 的场景，独立放在 `apps/website`，独立构建与部署；admin、web 保持 Vue3 + Vite SPA，不因引入 Nuxt 而迁移。
 
 ```bash
 pnpm dlx nuxi@latest init apps/website
@@ -72,7 +70,7 @@ useSeoMeta({
 
 官网统一用 `@nuxtjs/i18n`（底层就是 vue-i18n，与前端既有约定一致）：
 
-- **基线语言同为 `zh-CN` + `en`**（见铁律 13）：官网与 SPA 端保持一致，起步就上中英两种语言；不保留"先中文站、后补英文"的过渡态。
+- **语言与 SPA 端同一基线**：不保留"先中文站、后补英文"的过渡态。
 - 每种语言**独立 URL**（如 `/en/` 前缀）。不要做纯客户端语言切换——搜索引擎索引不到 JS 切换出来的内容。
 - 用 `useLocaleHead()` 产出 `hreflang` 与 `og:locale`。
 - sitemap 需按语言生成 alternate 互链。
@@ -113,7 +111,7 @@ useSeoMeta({
 ## 共享代码
 
 - zod schema 从 `packages/schemas` 引，与后端、SPA 同一份。
-- 请求走 `packages/api-client`，不要在 Nuxt 里另起一套 axios 封装。
+- 请求走 `packages/http`，不要在 Nuxt 里另起一套 axios 封装。
 - SSR 下服务端取数用绝对地址（`useRuntimeConfig().public.apiBase`），相对 URL 会失败。
 
 ## 部署

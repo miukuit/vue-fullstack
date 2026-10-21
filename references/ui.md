@@ -8,7 +8,7 @@
 | C 端（消费者 Web/H5） | **daisyUI + tailwindcss** | 落地页、营销页、用户中心、内容页 |
 | uni-app 小程序端 | **WotUI** (`@wot-design-uni`) | 微信/支付宝/抖音小程序、跨端 H5 |
 
-- 单页面内不混用两套组件库。确需在后台嵌入 C 端页面，用 iframe 或独立路由隔离，不要同页混装。
+- 确需在后台嵌入 C 端页面，用 iframe 或独立路由隔离，不要同页混装。
 - 选择依据是**面向谁**，不是技术偏好：给运营/管理员用 → element-plus；给终端用户用 → daisyUI。
 
 ## Tailwind + daisyUI
@@ -35,7 +35,7 @@
 - 主题：用 SCSS 变量或 CSS 变量覆写，集中放 `styles/element/index.scss`，不在组件里 `:deep` 到处改。
 - 表格：统一封装 `ProTable`（分页、加载、空态、列配置），业务页只用封装后的组件。
 - 表单：统一封装 `ProForm`，schema 用 zod 生成校验规则（见 [backend.md](backend.md) 的 schema 复用）。
-- `ElMessage`/`ElMessageBox` 在请求拦截器里按端注入，不硬编码在 api-client。
+- `ElMessage`/`ElMessageBox` 在请求拦截器里按端注入，不硬编码在 `packages/http`。
 
 ```ts
 import { ElConfigProvider } from 'element-plus'
